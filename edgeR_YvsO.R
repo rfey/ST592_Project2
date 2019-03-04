@@ -1,11 +1,11 @@
-# rmf 2.20.2019
+# rmf 2.20.2019, last modified 3.4.2019
 
 library(edgeR)
 
 # creates a string vector with all arguments
 args = commandArgs(trailingOnly=TRUE)
 
-usage <- 'Rscript edgeR.R <counts table> <log fold change threshold>'
+usage <- 'Rscript edgeR.R <counts table> <log fold change threshold>\nLFC threshold optional, use "NA" for no threshold'
 
 if (length(args)!=2){
    stop(usage)
@@ -18,11 +18,11 @@ outfile <- paste('miRsDE_youngVsOld',FC,'FC.txt',sep='')
 
 rawCounts <- read.delim(countsTable,row.names=1)
 
-# remove miRs with mean expression under 1 for either age (under 1 ok for one but not both)
+# remove miRs with median expression under 1 for either age (under 1 ok for one but not both)
 print(paste('Number of miRs before filtering:',nrow(rawCounts),sep=" "))
 filteredCounts <- data.frame()
 for (row in 1:nrow(rawCounts)){
-    if (mean(as.numeric(rawCounts[row,1:12]))>1 || mean(as.numeric(rawCounts[row,13:24]))>1){
+    if (median(as.numeric(rawCounts[row,1:12]))>1 || median(as.numeric(rawCounts[row,13:24]))>1){
        filteredCounts <- rbind(filteredCounts, rawCounts[row,])
     }
 }
@@ -36,13 +36,16 @@ age <- gsub("_ZT.*","",libGroup)
 sampleInfo <- cbind(sampleNames,ZT,age)
 sampleInfo <- as.data.frame(sampleInfo)
 filteredCountsDGE <- DGEList(counts=filteredCounts,group=libGroup)
+group <- factor(paste(sampleInfo$age,sampleInfo$ZT,sep='_'))
+group <- cbind(sampleInfo,group=group)
 
-#group <- factor(paste(sampleInfo$age,sampleInfo$ZT,sep='_'))
-#group <- cbind(sampleInfo,group=group)
+sampleInfo$age <- relevel(sampleInfo$age, ref="young")
 
 # not sure if this is correct
-design <- model.matrix(~ age + ZT + age:ZT)
-#colnames(design) <- levels(age)
+design <- model.matrix(~age + ZT + age:ZT, data=sampleInfo)
+
+#design <- model.matrix(~0+libGroup)
+#colnames(design) <- levels()
 
 counts.norm.TMM <- calcNormFactors(filteredCountsDGE,method='TMM')
 counts.norm <- cpm(counts.norm.TMM, normalized.lib.sizes=TRUE)
@@ -55,18 +58,18 @@ fit <- glmQLFit(counts.disp, design, robust=TRUE)
 #cmd <- paste("contrast <- makeContrasts(", condition1, "-", condition2, ", levels=design)")
 #eval(parse(text = cmd))
 
-contrast <- makeContrasts(age$young-age$old,levels=design)
+#contrast <- makeContrasts(age$young-age$old,levels=design)
 
 if (FC == "NA"){
    print("No fold change threshold chosen.")
-   qlf <- glmQLFTest(fit, contrast=contrast) # QL F test with no log fold change threshold imposed
+   qlf <- glmQLFTest(fit, coef=2) # QL F test with no log fold change threshold imposed
    toWrite <- cbind(rownames(qlf$table),qlf$table)
-   colnames(toWrite) <- cbind('mirID',colnames(qlf$table))
+   colnames(toWrite) <- append(colnames(qlf$table),'mirID',after=0)
    write.table(toWrite, file = outfile, sep='\t', quote=FALSE, row.names=FALSE)
 } else {
    print(paste("Using fold change threshold",FC))
    FC <- as.numeric(FC)
-   tr <- glmTreat(fit, contrast=contrast, lfc=log2(FC)) # as above, but with log fold change threshold imposed
+   tr <- glmTreat(fit, coef=2, lfc=log2(FC)) # as above, but with log fold change threshold imposed
    toWrite <- cbind(rownames(tr$table),tr$table)
    colnames(toWrite) <- c('mirID',colnames(tr$table))
    write.table(toWrite, file=outfile, sep='\t', quote=FALSE, row.names=FALSE)
