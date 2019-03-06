@@ -7,6 +7,7 @@
 
 # step 2: find DE mirs
 # using edgeR script: edgeR_YvsO.R
+# NOTE that the edgeR script pre-filters mirs by RAW counts (this analysis, raw count of 1)
 
 ./compareYoungVsOld.sh ## # output is a list of mirs with raw pvals and DE calls (miRsDE_youngVsOld0.05alphaNAFC.txt)
 ./getDEmirs.sh  ## splits DE mirs into up and downregulated lists (downDE_youngVsOld0.05alphaNAFC.txt, upDE_youngVsOld0.05alphaNAFC.txt)

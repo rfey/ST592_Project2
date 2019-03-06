@@ -20,6 +20,7 @@ outfile <- paste('miRsDE_youngVsOld',alpha,'alpha',FC,'FC.txt',sep='')
 rawCounts <- read.delim(countsTable,row.names=1)
 
 # remove miRs with median expression under 1 for either age (under 1 ok for one but not both)
+# NOTE: this is filtering on raw counts!
 print(paste('Number of miRs before filtering:',nrow(rawCounts),sep=" "))
 filteredCounts <- data.frame()
 for (row in 1:nrow(rawCounts)){
@@ -54,7 +55,7 @@ counts.norm <- cpm(counts.norm.TMM, normalized.lib.sizes=TRUE)
 counts.disp <- estimateDisp(counts.norm.TMM, design, robust=TRUE)
 
 fit <- glmQLFit(counts.disp, design, robust=TRUE)
-fit
+
 # this weird thing is to make the 'makeContrasts' function take variables
 #cmd <- paste("contrast <- makeContrasts(", condition1, "-", condition2, ", levels=design)")
 #eval(parse(text = cmd))
