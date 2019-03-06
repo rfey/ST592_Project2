@@ -1,20 +1,21 @@
-# rmf 2.20.2019, last modified 3.4.2019
+# rmf 2.20.2019, last modified 3.5.2019
 
 library(edgeR)
 
 # creates a string vector with all arguments
 args = commandArgs(trailingOnly=TRUE)
 
-usage <- 'Rscript edgeR.R <counts table> <log fold change threshold>\nLFC threshold optional, use "NA" for no threshold'
+usage <- 'Rscript edgeR.R <counts table> <log fold change threshold> <alpha>\nLFC threshold optional, use "NA" for no threshold'
 
-if (length(args)!=2){
+if (length(args)!=3){
    stop(usage)
 }
 
 countsTable <- args[1]
 FC <- args[2]
+alpha <- args[3]
 
-outfile <- paste('miRsDE_youngVsOld',FC,'FC.txt',sep='')
+outfile <- paste('miRsDE_youngVsOld',alpha,'alpha',FC,'FC.txt',sep='')
 
 rawCounts <- read.delim(countsTable,row.names=1)
 
@@ -53,7 +54,7 @@ counts.norm <- cpm(counts.norm.TMM, normalized.lib.sizes=TRUE)
 counts.disp <- estimateDisp(counts.norm.TMM, design, robust=TRUE)
 
 fit <- glmQLFit(counts.disp, design, robust=TRUE)
-
+fit
 # this weird thing is to make the 'makeContrasts' function take variables
 #cmd <- paste("contrast <- makeContrasts(", condition1, "-", condition2, ", levels=design)")
 #eval(parse(text = cmd))
@@ -63,14 +64,20 @@ fit <- glmQLFit(counts.disp, design, robust=TRUE)
 if (FC == "NA"){
    print("No fold change threshold chosen.")
    qlf <- glmQLFTest(fit, coef=2) # QL F test with no log fold change threshold imposed
+   BH <- decideTestsDGE(qlf,adjust.method='BH',p.value=as.numeric(alpha),lfc=0)
    toWrite <- cbind(rownames(qlf$table),qlf$table)
    colnames(toWrite) <- append(colnames(qlf$table),'mirID',after=0)
+   toWrite <- cbind(toWrite,BH[,1])
+   colnames(toWrite)[6] <- "DE"
    write.table(toWrite, file = outfile, sep='\t', quote=FALSE, row.names=FALSE)
 } else {
    print(paste("Using fold change threshold",FC))
    FC <- as.numeric(FC)
    tr <- glmTreat(fit, coef=2, lfc=log2(FC)) # as above, but with log fold change threshold imposed
+   BH <- decideTestsDGE(tr,adjust.method='BH',p.value=as.numeric(alpha),lfc=0)
    toWrite <- cbind(rownames(tr$table),tr$table)
    colnames(toWrite) <- c('mirID',colnames(tr$table))
+   toWrite <- cbind(toWrite,BH[,1])
+   colnames(toWrite)[6] <- "DE"
    write.table(toWrite, file=outfile, sep='\t', quote=FALSE, row.names=FALSE)
 }
