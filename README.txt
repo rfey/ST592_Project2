@@ -38,3 +38,12 @@ miRsDE_youngVsOld0.05alphaNAFC.txt
 # NOTE: these are input for getting gene lists for pathway analysis
 upDE_youngVsOld0.05alphaNAFC.txt
 downDE_youngVsOld0.05alphaNAFC.txt
+
+# input gene list files for pathway analysis
+inputGenes_upDE_DESeq0.05alphaNAFC_1.0FPKM_0.80PCT_Entrez.txt
+inputGenes_downDE_DESeq0.05alphaNAFC_1.0FPKM_0.80PCT_Entrez.txt
+inputGenes_upDE_0.05alphaNAFC_1.0FPKM_0.80PCT_Entrez.txt
+inputGenes_downDE_0.05alphaNAFC_1.0FPKM_0.80PCT_Entrez.txt
+
+# background gene list for pathway analysis
+background_1.0FPKM.txt

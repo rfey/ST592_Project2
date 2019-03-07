@@ -24,5 +24,5 @@ genes <- readLines(geneFile)
 background <- readLines(bgFile)
 
 # MAIN
-x <- enrichPathway(gene=genes,organism="fly",pvalueCutoff=as.numeric(alpha),background=background)
+x <- enrichPathway(gene=genes,organism="fly",pvalueCutoff=as.numeric(alpha),universe=background)
 head(as.data.frame(x))
