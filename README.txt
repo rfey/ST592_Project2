@@ -18,9 +18,12 @@
 ./getBGlist.sh
 
 # step 4: write input gene list for pathway analysis
+# NOTE: must convert FBIDs to Entrez Gene IDs
 
 ./writeInputList.sh
-
+wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz
+gunzip gene2ensembl.gz 
+./fbid2entrez.sh
 
 #### FINAL FILES TO USE ####
 # NOTE: all on github
