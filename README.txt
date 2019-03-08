@@ -46,4 +46,4 @@ inputGenes_upDE_0.05alphaNAFC_1.0FPKM_0.80PCT_Entrez.txt
 inputGenes_downDE_0.05alphaNAFC_1.0FPKM_0.80PCT_Entrez.txt
 
 # background gene list for pathway analysis
-background_1.0FPKM.txt
+background_1.0FPKM_Entrez.txt
