@@ -25,6 +25,10 @@ wget ftp://ftp.ncbi.nih.gov/gene/DATA/gene2ensembl.gz
 gunzip gene2ensembl.gz 
 ./fbid2entrez.sh
 
+# step 5: run reactomePA
+
+./analyzePathways.sh
+
 #### FINAL FILES TO USE ####
 # NOTE: all on github
 

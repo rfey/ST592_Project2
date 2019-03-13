@@ -1,4 +1,4 @@
-# rmf 3.7.2019
+# rmf 3.7.2019, last modified 3.8.2019
 
 ## for getting error: In library(package, lib.loc = lib.loc, character.only = TRUE, logical.return = TRUE : there is no package called ‘org.Dm.eg.db’
 ## use following code in R terminal
@@ -24,5 +24,6 @@ genes <- readLines(geneFile)
 background <- readLines(bgFile)
 
 # MAIN
-x <- enrichPathway(gene=genes,organism="fly",pvalueCutoff=as.numeric(alpha),universe=background)
-head(as.data.frame(x))
+x <- enrichPathway(gene=genes,organism="fly",qvalueCutoff=as.numeric(alpha),universe=background,readable=T)
+png('Rplots.png')
+barplot(x,showCategory=10)
